@@ -23,12 +23,11 @@ def create_roles():
 
 
 def create_default_sms_settings():
-	"""Create SMS Settings single doc if not exists."""
-	if not frappe.db.exists("SMS Settings", "SMS Settings"):
-		# Single doc - name is always the doctype name
+	"""Create SACCO SMS Settings single doc if not exists."""
+	if not frappe.db.exists("SACCO SMS Settings", "SACCO SMS Settings"):
 		frappe.get_doc(
 			{
-				"doctype": "SMS Settings",
+				"doctype": "SACCO SMS Settings",
 				"provider_name": "Default",
 				"api_url": "https://api.example.com/sms/send",
 				"api_key": "",
@@ -128,7 +127,7 @@ def create_sacco_workspace():
 				{"label": "Membership Fees", "link_to": "Membership Fee Payment", "link_type": "DocType", "type": "Link"},
 				{"label": "Loan/Saving Payments", "link_to": "Loan Saving Payment", "link_type": "DocType", "type": "Link"},
 				{"label": "SMS Logs", "link_to": "SACCO SMS Log", "link_type": "DocType", "type": "Link"},
-				{"label": "SMS Settings", "link_to": "SMS Settings", "link_type": "DocType", "type": "Link"},
+				{"label": "SACCO SMS Settings", "link_to": "SACCO SMS Settings", "link_type": "DocType", "type": "Link"},
 			],
 		}
 	)

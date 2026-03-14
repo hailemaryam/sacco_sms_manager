@@ -11,9 +11,9 @@ import frappe
 
 
 def get_sms_settings():
-	"""Get active SMS Settings. Returns None if not configured."""
+	"""Get active SACCO SMS Settings. Returns None if not configured."""
 	try:
-		settings = frappe.get_single("SMS Settings")
+		settings = frappe.get_single("SACCO SMS Settings")
 		if settings.is_active and settings.api_url:
 			return settings
 	except Exception:
@@ -36,7 +36,7 @@ def send_sms(
 	"""
 	settings = get_sms_settings()
 	if not settings:
-		frappe.throw("SMS Settings not configured or inactive. Please configure SMS Settings.")
+		frappe.throw("SACCO SMS Settings not configured or inactive. Please configure SACCO SMS Settings.")
 
 	# Normalize phone number
 	phone = _normalize_phone(phone)

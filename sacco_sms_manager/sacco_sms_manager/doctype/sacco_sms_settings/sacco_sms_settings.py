@@ -5,5 +5,5 @@ import frappe
 from frappe.model.document import Document
 
 
-class SMSSettings(Document):
+class SACCOSMSSettings(Document):
 	pass

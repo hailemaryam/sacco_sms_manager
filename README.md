@@ -34,8 +34,8 @@ A Frappe application for managing SACCO (Saving and Credit Organization) members
    bench --site your-site.local install-app sacco_sms_manager
    ```
 
-3. **Configure SMS Settings**
-   - Go to **SACCO** workspace → **SMS Settings**
+3. **Configure SACCO SMS Settings**
+   - Go to **SACCO** workspace → **SACCO SMS Settings**
    - Enter your SMS provider's API URL, API Key, and Sender ID
    - Mark as Active when ready
 
@@ -83,7 +83,7 @@ A Frappe application for managing SACCO (Saving and Credit Organization) members
 
 ## SMS Gateway
 
-The app uses a generic REST API. Configure in **SMS Settings** with:
+The app uses a generic REST API. Configure in **SACCO SMS Settings** with:
 
 - **API URL**: Provider endpoint (e.g. `https://api.example.com/sms/send`)
 - **API Key**: Authentication
