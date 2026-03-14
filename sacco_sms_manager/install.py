@@ -11,6 +11,11 @@ def after_install():
 	create_sacco_workspace()
 
 
+def after_migrate():
+	"""Run after migrate: ensure SACCO workspace and menu exist."""
+	create_sacco_workspace()
+
+
 def create_roles():
 	"""Create SACCO roles if they don't exist."""
 	roles = ["SACCO Admin", "SACCO Officer", "Accountant"]
@@ -39,11 +44,8 @@ def create_default_sms_settings():
 
 
 def create_sacco_workspace():
-	"""Create SACCO workspace with dashboard and links."""
-	if frappe.db.exists("Workspace", "SACCO"):
-		return
-
-	# Create number cards for dashboard
+	"""Create SACCO workspace with dashboard, links, shortcuts, and sidebar menu."""
+	# Create number cards for dashboard (recreate if missing)
 	cards = [
 		{
 			"doctype": "Number Card",
@@ -102,34 +104,103 @@ def create_sacco_workspace():
 		if not frappe.db.exists("Number Card", card_data["name"]):
 			frappe.get_doc(card_data).insert(ignore_permissions=True)
 
-	# Create workspace
 	content = (
-        '[{"id":"card1","type":"number_card","data":{"number_card_name":"Total Members","col":4}},'
-        '{"id":"card2","type":"number_card","data":{"number_card_name":"Active Members","col":4}},'
-        '{"id":"card3","type":"number_card","data":{"number_card_name":"Pending Membership Payments","col":4}},'
-        '{"id":"card4","type":"number_card","data":{"number_card_name":"Pending Loan Payments","col":4}},'
-        '{"id":"card5","type":"number_card","data":{"number_card_name":"SMS Sent Today","col":4}}]'
-    )
-	workspace = frappe.get_doc(
-		{
-			"doctype": "Workspace",
-			"name": "SACCO",
-			"title": "SACCO",
-			"label": "SACCO",
-			"icon": "users",
-			"module": "Sacco Sms Manager",
-			"app": "sacco_sms_manager",
-			"content": content,
-			"public": 1,
-			"links": [
-				{"label": "Members", "link_to": "Member", "link_type": "DocType", "type": "Link"},
-				{"label": "SMS Campaigns", "link_to": "SMS Campaign", "link_type": "DocType", "type": "Link"},
-				{"label": "Membership Fees", "link_to": "Membership Fee Payment", "link_type": "DocType", "type": "Link"},
-				{"label": "Loan/Saving Payments", "link_to": "Loan Saving Payment", "link_type": "DocType", "type": "Link"},
-				{"label": "SMS Logs", "link_to": "SACCO SMS Log", "link_type": "DocType", "type": "Link"},
-				{"label": "SACCO SMS Settings", "link_to": "SACCO SMS Settings", "link_type": "DocType", "type": "Link"},
-			],
-		}
+		'[{"id":"card1","type":"number_card","data":{"number_card_name":"Total Members","col":4}},'
+		'{"id":"card2","type":"number_card","data":{"number_card_name":"Active Members","col":4}},'
+		'{"id":"card3","type":"number_card","data":{"number_card_name":"Pending Membership Payments","col":4}},'
+		'{"id":"card4","type":"number_card","data":{"number_card_name":"Pending Loan Payments","col":4}},'
+		'{"id":"card5","type":"number_card","data":{"number_card_name":"SMS Sent Today","col":4}}]'
 	)
-	workspace.insert(ignore_permissions=True)
+
+	link_items = [
+		{"label": "Members", "link_to": "Member", "link_type": "DocType", "type": "Link"},
+		{"label": "SMS Campaigns", "link_to": "SMS Campaign", "link_type": "DocType", "type": "Link"},
+		{"label": "Membership Fees", "link_to": "Membership Fee Payment", "link_type": "DocType", "type": "Link"},
+		{"label": "Loan/Saving Payments", "link_to": "Loan Saving Payment", "link_type": "DocType", "type": "Link"},
+		{"label": "SMS Logs", "link_to": "SACCO SMS Log", "link_type": "DocType", "type": "Link"},
+		{"label": "SACCO SMS Settings", "link_to": "SACCO SMS Settings", "link_type": "DocType", "type": "Link"},
+	]
+
+	shortcut_items = [
+		{"label": "Members", "link_to": "Member", "type": "DocType"},
+		{"label": "SMS Campaigns", "link_to": "SMS Campaign", "type": "DocType"},
+		{"label": "Membership Fees", "link_to": "Membership Fee Payment", "type": "DocType"},
+		{"label": "Loan/Saving Payments", "link_to": "Loan Saving Payment", "type": "DocType"},
+		{"label": "SMS Logs", "link_to": "SACCO SMS Log", "type": "DocType"},
+		{"label": "SACCO SMS Settings", "link_to": "SACCO SMS Settings", "type": "DocType"},
+	]
+
+	if frappe.db.exists("Workspace", "SACCO"):
+		workspace = frappe.get_doc("Workspace", "SACCO")
+		workspace.content = content
+		workspace.links = []
+		workspace.shortcuts = []
+		for item in link_items:
+			workspace.append("links", item)
+		for item in shortcut_items:
+			workspace.append("shortcuts", item)
+		workspace.save(ignore_permissions=True)
+	else:
+		workspace = frappe.get_doc(
+			{
+				"doctype": "Workspace",
+				"name": "SACCO",
+				"title": "SACCO",
+				"label": "SACCO",
+				"icon": "users",
+				"module": "Sacco Sms Manager",
+				"app": "sacco_sms_manager",
+				"content": content,
+				"public": 1,
+			}
+		)
+		for item in link_items:
+			workspace.append("links", item)
+		for item in shortcut_items:
+			workspace.append("shortcuts", item)
+		workspace.insert(ignore_permissions=True)
+
+	# Create or update Workspace Sidebar for menu
+	create_sacco_workspace_sidebar()
 	frappe.db.commit()
+
+
+def create_sacco_workspace_sidebar():
+	"""Create Workspace Sidebar for SACCO menu."""
+	from frappe.desk.doctype.workspace_sidebar.workspace_sidebar import create_workspace_sidebar_for_workspaces
+
+	# Creates sidebar for any workspace that doesn't have one
+	create_workspace_sidebar_for_workspaces()
+
+	# Ensure SACCO sidebar has our menu items
+	if frappe.db.exists("Workspace Sidebar", "SACCO"):
+		sidebar = frappe.get_doc("Workspace Sidebar", "SACCO")
+		sidebar.module = "Sacco Sms Manager"
+		sidebar.app = "sacco_sms_manager"
+		sidebar.header_icon = "users"
+		sidebar.standard = 1
+		# Rebuild items from workspace shortcuts
+		workspace = frappe.get_doc("Workspace", "SACCO")
+		items = [
+			frappe._dict({"label": "Home", "link_to": "SACCO", "link_type": "Workspace", "type": "Link", "idx": 0})
+		]
+		for idx, s in enumerate(workspace.shortcuts or [], start=1):
+			items.append(
+				frappe._dict({
+					"label": s.label,
+					"link_to": s.link_to,
+					"link_type": s.type,
+					"type": "Link",
+					"idx": idx,
+				})
+			)
+		sidebar.items = []
+		for item in items:
+			sidebar.append("items", {
+				"label": item.label,
+				"link_to": item.link_to,
+				"link_type": item.link_type,
+				"type": "Link",
+				"idx": item.idx,
+			})
+		sidebar.save(ignore_permissions=True)

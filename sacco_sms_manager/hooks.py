@@ -92,6 +92,7 @@ doctype_list_js = {
 # ------------
 
 after_install = "sacco_sms_manager.install.after_install"
+after_migrate = "sacco_sms_manager.install.after_migrate"
 
 # Uninstallation
 # ------------
