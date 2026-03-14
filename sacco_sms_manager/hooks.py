@@ -43,8 +43,14 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_js = {
+	"Member": "public/js/member.js",
+	"SMS Campaign": "public/js/sms_campaign.js",
+	"Membership Fee Payment": "public/js/membership_fee_payment.js",
+}
+doctype_list_js = {
+	"Member": "public/js/member_list.js",
+}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -85,8 +91,7 @@ app_license = "mit"
 # Installation
 # ------------
 
-# before_install = "sacco_sms_manager.install.before_install"
-# after_install = "sacco_sms_manager.install.after_install"
+after_install = "sacco_sms_manager.install.after_install"
 
 # Uninstallation
 # ------------
@@ -143,23 +148,14 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"sacco_sms_manager.tasks.all"
-# 	],
-# 	"daily": [
-# 		"sacco_sms_manager.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"sacco_sms_manager.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"sacco_sms_manager.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"sacco_sms_manager.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"sacco_sms_manager.tasks.daily",
+	],
+	"hourly": [
+		"sacco_sms_manager.tasks.process_scheduled_sms_campaigns",
+	],
+}
 
 # Testing
 # -------
@@ -184,9 +180,7 @@ app_license = "mit"
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
-# override_doctype_dashboards = {
-# 	"Task": "sacco_sms_manager.task.get_dashboard_data"
-# }
+override_doctype_dashboards = {}
 
 # exempt linked doctypes from being automatically cancelled
 #
