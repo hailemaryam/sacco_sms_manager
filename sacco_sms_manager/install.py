@@ -122,23 +122,30 @@ def create_sacco_workspace():
 	]
 
 	shortcut_items = [
-		{"label": "Members", "link_to": "Member", "type": "DocType"},
-		{"label": "SMS Campaigns", "link_to": "SMS Campaign", "type": "DocType"},
-		{"label": "Membership Fees", "link_to": "Membership Fee Payment", "type": "DocType"},
-		{"label": "Loan/Saving Payments", "link_to": "Loan Saving Payment", "type": "DocType"},
-		{"label": "SMS Logs", "link_to": "SACCO SMS Log", "type": "DocType"},
-		{"label": "SACCO SMS Settings", "link_to": "SACCO SMS Settings", "type": "DocType"},
+		{"label": "Members", "link_to": "Member", "type": "DocType", "icon": "users"},
+		{"label": "SMS Campaigns", "link_to": "SMS Campaign", "type": "DocType", "icon": "mail"},
+		{"label": "Membership Fees", "link_to": "Membership Fee Payment", "type": "DocType", "icon": "credit-card"},
+		{"label": "Loan/Saving Payments", "link_to": "Loan Saving Payment", "type": "DocType", "icon": "file-text"},
+		{"label": "SMS Logs", "link_to": "SACCO SMS Log", "type": "DocType", "icon": "list"},
+		{"label": "SACCO SMS Settings", "link_to": "SACCO SMS Settings", "type": "DocType", "icon": "settings"},
 	]
 
 	if frappe.db.exists("Workspace", "SACCO"):
 		workspace = frappe.get_doc("Workspace", "SACCO")
 		workspace.content = content
+		workspace.standard = 1
 		workspace.links = []
 		workspace.shortcuts = []
+		workspace.number_cards = []
 		for item in link_items:
 			workspace.append("links", item)
 		for item in shortcut_items:
 			workspace.append("shortcuts", item)
+		for card in cards:
+			workspace.append("number_cards", {
+				"number_card_name": card["name"],
+				"label": card["label"]
+			})
 		workspace.save(ignore_permissions=True)
 	else:
 		workspace = frappe.get_doc(
@@ -152,12 +159,18 @@ def create_sacco_workspace():
 				"app": "sacco_sms_manager",
 				"content": content,
 				"public": 1,
+				"standard": 1,
 			}
 		)
 		for item in link_items:
 			workspace.append("links", item)
 		for item in shortcut_items:
 			workspace.append("shortcuts", item)
+		for card in cards:
+			workspace.append("number_cards", {
+				"number_card_name": card["name"],
+				"label": card["label"]
+			})
 		workspace.insert(ignore_permissions=True)
 
 	# Create or update Workspace Sidebar for menu
@@ -182,7 +195,7 @@ def create_sacco_workspace_sidebar():
 		# Rebuild items from workspace shortcuts
 		workspace = frappe.get_doc("Workspace", "SACCO")
 		items = [
-			frappe._dict({"label": "Home", "link_to": "SACCO", "link_type": "Workspace", "type": "Link", "idx": 0})
+			frappe._dict({"label": "Home", "link_to": "SACCO", "link_type": "Workspace", "type": "Link", "idx": 0, "icon": "home"})
 		]
 		for idx, s in enumerate(workspace.shortcuts or [], start=1):
 			items.append(
@@ -192,6 +205,7 @@ def create_sacco_workspace_sidebar():
 					"link_type": s.type,
 					"type": "Link",
 					"idx": idx,
+					"icon": s.icon,
 				})
 			)
 		sidebar.items = []
@@ -202,5 +216,6 @@ def create_sacco_workspace_sidebar():
 				"link_type": item.link_type,
 				"type": "Link",
 				"idx": item.idx,
+				"icon": item.icon,
 			})
 		sidebar.save(ignore_permissions=True)
