@@ -3,6 +3,7 @@
  "autoname": "MEM-.#####",
  "creation": "2025-03-14 00:00:00.000000",
  "doctype": "DocType",
+ "allow_import": 1,
  "engine": "InnoDB",
  "field_order": [
   "sb_personal",
@@ -241,6 +242,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
+   "import": 1,
    "role": "SACCO Admin",
    "share": 1,
    "write": 1
@@ -253,6 +255,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
+   "import": 1,
    "role": "SACCO Officer",
    "share": 1,
    "write": 1
