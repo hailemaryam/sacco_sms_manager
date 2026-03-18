@@ -195,7 +195,7 @@ def create_sacco_workspace_sidebar():
 		# Rebuild items from workspace shortcuts
 		workspace = frappe.get_doc("Workspace", "SACCO")
 		items = [
-			frappe._dict({"label": "Home", "link_to": "SACCO", "link_type": "Workspace", "type": "Link", "idx": 0, "icon": "home"})
+			frappe._dict({"label": "Home", "link_to": "SACCO", "link_type": "Workspace", "type": "Link", "idx": -1, "icon": "home"})
 		]
 		for idx, s in enumerate(workspace.shortcuts or [], start=1):
 			items.append(
@@ -208,7 +208,7 @@ def create_sacco_workspace_sidebar():
 					"icon": s.icon,
 				})
 			)
-		sidebar.items = []
+		sidebar.set("items", [])
 		for item in items:
 			sidebar.append("items", {
 				"label": item.label,
