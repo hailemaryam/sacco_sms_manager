@@ -78,3 +78,24 @@ def send_membership_fee_reminder(payment_name: str):
 	)
 	send_sms(member_doc.phone, message, member=payment.member)
 	return {"success": True}
+
+
+@frappe.whitelist()
+def send_loan_saving_payment_reminder(payment_name: str):
+	"""Manually trigger loan/saving payment reminder for a payment."""
+	frappe.only_for(["SACCO Admin", "SACCO Officer", "Accountant"])
+	from sacco_sms_manager.sms_service import send_sms
+
+	payment = frappe.get_doc("Loan Saving Payment", payment_name)
+	if payment.payment_status == "Paid":
+		frappe.throw(_("Payment is already marked as paid."))
+	member_doc = frappe.get_cached_doc("Member", payment.member)
+	if not member_doc.phone:
+		frappe.throw(_("Member has no phone number."))
+	message = (
+		f"Dear {member_doc.full_name or member_doc.first_name}, "
+		f"your SACCO {payment.payment_type} payment of {payment.amount} is due on {payment.due_date}. "
+		"Please make payment on time."
+	)
+	send_sms(member_doc.phone, message, member=payment.member)
+	return {"success": True}

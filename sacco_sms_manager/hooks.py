@@ -47,6 +47,7 @@ doctype_js = {
 	"Member": "public/js/member.js",
 	"SMS Campaign": "public/js/sms_campaign.js",
 	"Membership Fee Payment": "public/js/membership_fee_payment.js",
+	"Loan Saving Payment": "public/js/loan_saving_payment.js",
 }
 doctype_list_js = {
 	"Member": "public/js/member_list.js",
